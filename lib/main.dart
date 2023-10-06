@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './quiz_brain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 QuizBrain quizBrain = QuizBrain();
 
@@ -30,38 +31,34 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   List<Widget> scoreKeeper = [];
   List<Widget> counterKeeper = [];
-  int questionNumber = 0;
   int counter = 0;
-  int limiter = quizBrain.questionBank.length - 1;
 
-  void quizCheck(answer) {
-    bool correctAnswer = quizBrain.getaAnswer(questionNumber);
-    if(counter <= limiter) {
+  void quizCheck(bool answer) {
+    bool correctAnswer = quizBrain.getaAnswer();
+    if (quizBrain.endOfQuestion() == counter) {
       print(counter);
       setState(() {
-        counterKeeper.add(
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-            child: Text(
-              '${counter+1}',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontSize: 20
-              ),
-            ),
-          )
-        );
-        if(correctAnswer == answer) {
+        if (correctAnswer == answer) {
           scoreKeeper.add(Icon(Icons.check, color: Colors.green));
         } else {
           scoreKeeper.add(Icon(Icons.close, color: Colors.red));
         }
+        quizBrain.nextQuestion();
+
+        // to print question number
+        counterKeeper.add(Padding(
+          padding: const EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+          child: Text(
+            '${counter + 1}',
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.white, fontSize: 20),
+          ),
+        ));
         counter++;
-        if(counter != limiter) {
-          questionNumber++;
-        }
       });
+    } else {
+      Alert(context: context, title: "Pratik's Que Bank", desc: "End of question")
+          .show();
     }
   }
 
@@ -77,7 +74,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                quizBrain.getQuestionText(questionNumber),
+                quizBrain.getQuestionText(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
